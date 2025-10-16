@@ -26,7 +26,11 @@ export async function publishAssets(stacks: CloudFormationStackArtifact[]) {
     await buildAndPublishAssets(deployment, stackArtifact);
     results[stackArtifact.stackName] = {
       isUpdate: cfnStack && cfnStack.StackStatus !== "REVIEW_IN_PROGRESS",
-      params: await buildCloudFormationStackParams(deployment, stackArtifact, cdk),
+      params: await buildCloudFormationStackParams(
+        deployment,
+        stackArtifact,
+        cdk
+      ),
     };
   }
   return results;
@@ -122,7 +126,11 @@ export async function deploy(
       await deleteCloudFormationStack(stack.stackName);
     }
 
-    const stackParams = await buildCloudFormationStackParams(deployment, stack, cdk);
+    const stackParams = await buildCloudFormationStackParams(
+      deployment,
+      stack,
+      cdk
+    );
     try {
       cfnStack && cfnStack.StackStatus !== "REVIEW_IN_PROGRESS"
         ? await updateCloudFormationStack(stackParams)
@@ -305,7 +313,9 @@ async function buildCloudFormationStackParams(
   cdkOptions?: ConfigOptions["cdk"]
 ) {
   const env = await deployment.envs.accessStackForMutableStackOperations(stack);
-  const executionRoleArn = cdkOptions?.cloudFormationExecutionRole ?? await env.replacePlaceholders(stack.cloudFormationExecutionRoleArn);
+  const executionRoleArn =
+    cdkOptions?.cloudFormationExecutionRole ??
+    (await env.replacePlaceholders(stack.cloudFormationExecutionRoleArn));
   const s3Url = stack
     .stackTemplateAssetObjectUrl!.replace(
       "${AWS::AccountId}",
@@ -342,7 +352,7 @@ async function getCloudFormationStack(stack: CloudFormationStackArtifact) {
   const client = useAWSClient(CloudFormationClient);
   try {
     const { Stacks: stacks } = await client.send(
-        new DescribeStacksCommand({
+      new DescribeStacksCommand({
         StackName: stack.stackName,
       })
     );
