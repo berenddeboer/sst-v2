@@ -305,7 +305,7 @@ async function buildCloudFormationStackParams(
   cdkOptions?: ConfigOptions["cdk"]
 ) {
   const env = await deployment.envs.accessStackForMutableStackOperations(stack);
-  const executionRoleArn = cdkOptions?.cloudFormationExecutionRole ?? (await env.replacePlaceholders(stack.cloudFormationExecutionRoleArn));
+  const executionRoleArn = cdkOptions?.cloudFormationExecutionRole ?? await env.replacePlaceholders(stack.cloudFormationExecutionRoleArn);
   const s3Url = stack
     .stackTemplateAssetObjectUrl!.replace(
       "${AWS::AccountId}",
